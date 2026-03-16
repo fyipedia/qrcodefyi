@@ -1,6 +1,6 @@
 # qrcodefyi
 
-[![PyPI](https://img.shields.io/pypi/v/qrcodefyi)](https://pypi.org/project/qrcodefyi/)
+[![PyPI version](https://agentgif.com/badge/pypi/qrcodefyi/version.svg)](https://pypi.org/project/qrcodefyi/)
 [![Python](https://img.shields.io/pypi/pyversions/qrcodefyi)](https://pypi.org/project/qrcodefyi/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
