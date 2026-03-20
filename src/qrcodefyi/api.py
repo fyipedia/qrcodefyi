@@ -7,9 +7,9 @@ Usage::
     from qrcodefyi.api import QRCodeFYI
 
     with QRCodeFYI() as api:
-        results = api.search("micro qr")
-        qr_type = api.qr_type("model-2")
-        comparison = api.compare("model-1", "model-2")
+        items = api.list_components()
+        detail = api.get_component("example-slug")
+        results = api.search("query")
 """
 
 from __future__ import annotations
@@ -22,9 +22,8 @@ import httpx
 class QRCodeFYI:
     """API client for the qrcodefyi.com REST API.
 
-    Provides access to 11 endpoints covering QR code types, versions,
-    encoding modes, components, standards, use cases, glossary terms,
-    search, comparison, and random discovery.
+    Provides typed access to all qrcodefyi.com endpoints including
+    list, detail, and search operations.
 
     Args:
         base_url: API base URL. Defaults to ``https://qrcodefyi.com``.
@@ -38,102 +37,129 @@ class QRCodeFYI:
     ) -> None:
         self._client = httpx.Client(base_url=base_url, timeout=timeout)
 
-    # -- HTTP helpers ----------------------------------------------------------
-
     def _get(self, path: str, **params: Any) -> dict[str, Any]:
-        resp = self._client.get(path, params={k: v for k, v in params.items() if v is not None})
+        resp = self._client.get(
+            path,
+            params={k: v for k, v in params.items() if v is not None},
+        )
         resp.raise_for_status()
         result: dict[str, Any] = resp.json()
         return result
 
-    # -- Endpoints -------------------------------------------------------------
+    # -- Endpoints -----------------------------------------------------------
 
-    def qr_type(self, slug: str) -> dict[str, Any]:
-        """Get QR code type detail with specifications and standards.
+    def list_comparisons(self, **params: Any) -> dict[str, Any]:
+        """List all comparisons."""
+        return self._get("/api/v1/comparisons/", **params)
 
-        Args:
-            slug: QR type URL slug (e.g. ``"model-1"``, ``"model-2"``, ``"micro-qr"``).
-        """
-        return self._get(f"/api/type/{slug}/")
+    def get_comparison(self, slug: str) -> dict[str, Any]:
+        """Get comparison by slug."""
+        return self._get(f"/api/v1/comparisons/" + slug + "/")
 
-    def version(self, version: int) -> dict[str, Any]:
-        """Get QR version detail with module count and data capacities.
+    def list_components(self, **params: Any) -> dict[str, Any]:
+        """List all components."""
+        return self._get("/api/v1/components/", **params)
 
-        Args:
-            version: QR version number (1-40).
-        """
-        return self._get(f"/api/version/{version}/")
+    def get_component(self, slug: str) -> dict[str, Any]:
+        """Get component by slug."""
+        return self._get(f"/api/v1/components/" + slug + "/")
 
-    def component(self, slug: str) -> dict[str, Any]:
-        """Get QR code structural component detail.
+    def list_encoding_modes(self, **params: Any) -> dict[str, Any]:
+        """List all encoding modes."""
+        return self._get("/api/v1/encoding-modes/", **params)
 
-        Args:
-            slug: Component URL slug (e.g. ``"finder-pattern"``, ``"timing-pattern"``).
-        """
-        return self._get(f"/api/component/{slug}/")
+    def get_encoding_mode(self, slug: str) -> dict[str, Any]:
+        """Get encoding mode by slug."""
+        return self._get(f"/api/v1/encoding-modes/" + slug + "/")
 
-    def encoding(self, slug: str) -> dict[str, Any]:
-        """Get encoding mode detail with character set and capacity.
+    def list_faqs(self, **params: Any) -> dict[str, Any]:
+        """List all faqs."""
+        return self._get("/api/v1/faqs/", **params)
 
-        Args:
-            slug: Encoding mode URL slug
-                (e.g. ``"numeric"``, ``"alphanumeric"``, ``"byte"``, ``"kanji"``).
-        """
-        return self._get(f"/api/encoding/{slug}/")
+    def get_faq(self, slug: str) -> dict[str, Any]:
+        """Get faq by slug."""
+        return self._get(f"/api/v1/faqs/" + slug + "/")
 
-    def standard(self, slug: str) -> dict[str, Any]:
-        """Get QR code standard detail with linked types.
+    def list_glossary(self, **params: Any) -> dict[str, Any]:
+        """List all glossary."""
+        return self._get("/api/v1/glossary/", **params)
 
-        Args:
-            slug: Standard URL slug (e.g. ``"iso-iec-18004"``, ``"ais-gs1"``).
-        """
-        return self._get(f"/api/standard/{slug}/")
+    def get_term(self, slug: str) -> dict[str, Any]:
+        """Get term by slug."""
+        return self._get(f"/api/v1/glossary/" + slug + "/")
 
-    def use_case(self, slug: str) -> dict[str, Any]:
-        """Get QR code use case detail with examples.
+    def list_guides(self, **params: Any) -> dict[str, Any]:
+        """List all guides."""
+        return self._get("/api/v1/guides/", **params)
 
-        Args:
-            slug: Use case URL slug (e.g. ``"mobile-payment"``, ``"wifi-sharing"``).
-        """
-        return self._get(f"/api/use-case/{slug}/")
+    def get_guide(self, slug: str) -> dict[str, Any]:
+        """Get guide by slug."""
+        return self._get(f"/api/v1/guides/" + slug + "/")
 
-    def glossary_term(self, slug: str) -> dict[str, Any]:
-        """Get glossary term definition for tooltips and reference.
+    def list_recipes(self, **params: Any) -> dict[str, Any]:
+        """List all recipes."""
+        return self._get("/api/v1/recipes/", **params)
 
-        Args:
-            slug: Term URL slug (e.g. ``"error-correction"``, ``"module"``).
-        """
-        return self._get(f"/api/term/{slug}/")
+    def get_recipe(self, slug: str) -> dict[str, Any]:
+        """Get recipe by slug."""
+        return self._get(f"/api/v1/recipes/" + slug + "/")
 
-    def search(self, query: str) -> dict[str, Any]:
-        """Search across QR types, standards, components, and glossary terms.
+    def list_scan_scenarios(self, **params: Any) -> dict[str, Any]:
+        """List all scan scenarios."""
+        return self._get("/api/v1/scan-scenarios/", **params)
 
-        Args:
-            query: Search term (minimum 2 characters).
-        """
-        return self._get("/api/search/", q=query)
+    def get_scan_scenario(self, slug: str) -> dict[str, Any]:
+        """Get scan scenario by slug."""
+        return self._get(f"/api/v1/scan-scenarios/" + slug + "/")
 
-    def compare(self, slug_a: str, slug_b: str) -> dict[str, Any]:
-        """Compare two QR code types side by side.
+    def list_standards(self, **params: Any) -> dict[str, Any]:
+        """List all standards."""
+        return self._get("/api/v1/standards/", **params)
 
-        Args:
-            slug_a: First QR type slug (e.g. ``"model-1"``).
-            slug_b: Second QR type slug (e.g. ``"model-2"``).
-        """
-        return self._get("/api/compare/", a=slug_a, b=slug_b)
+    def get_standard(self, slug: str) -> dict[str, Any]:
+        """Get standard by slug."""
+        return self._get(f"/api/v1/standards/" + slug + "/")
 
-    def random(self) -> dict[str, Any]:
-        """Get a random QR code type with full detail."""
-        return self._get("/api/random/")
+    def list_tools(self, **params: Any) -> dict[str, Any]:
+        """List all tools."""
+        return self._get("/api/v1/tools/", **params)
 
-    def openapi(self) -> dict[str, Any]:
-        """Get the OpenAPI 3.1.0 specification."""
-        return self._get("/api/openapi.json")
+    def get_tool(self, slug: str) -> dict[str, Any]:
+        """Get tool by slug."""
+        return self._get(f"/api/v1/tools/" + slug + "/")
 
-    # -- Context manager -------------------------------------------------------
+    def list_types(self, **params: Any) -> dict[str, Any]:
+        """List all types."""
+        return self._get("/api/v1/types/", **params)
+
+    def get_type(self, slug: str) -> dict[str, Any]:
+        """Get type by slug."""
+        return self._get(f"/api/v1/types/" + slug + "/")
+
+    def list_use_cases(self, **params: Any) -> dict[str, Any]:
+        """List all use cases."""
+        return self._get("/api/v1/use-cases/", **params)
+
+    def get_use_case(self, slug: str) -> dict[str, Any]:
+        """Get use case by slug."""
+        return self._get(f"/api/v1/use-cases/" + slug + "/")
+
+    def list_versions(self, **params: Any) -> dict[str, Any]:
+        """List all versions."""
+        return self._get("/api/v1/versions/", **params)
+
+    def get_version(self, slug: str) -> dict[str, Any]:
+        """Get version by slug."""
+        return self._get(f"/api/v1/versions/" + slug + "/")
+
+    def search(self, query: str, **params: Any) -> dict[str, Any]:
+        """Search across all content."""
+        return self._get(f"/api/v1/search/", q=query, **params)
+
+    # -- Lifecycle -----------------------------------------------------------
 
     def close(self) -> None:
-        """Close the underlying HTTP connection."""
+        """Close the underlying HTTP client."""
         self._client.close()
 
     def __enter__(self) -> QRCodeFYI:
