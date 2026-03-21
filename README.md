@@ -6,7 +6,7 @@
 
 QR code encyclopedia API client for Python. Look up QR code types, versions 1-40, encoding modes, error correction levels, structural components, and standards from [QRCodeFYI](https://qrcodefyi.com) -- the comprehensive QR code reference covering Model 1, Model 2, Micro QR, rMQR, and every major QR variant in use today.
 
-> **Explore QR codes at [qrcodefyi.com](https://qrcodefyi.com)** -- [Type Explorer](https://qrcodefyi.com/type/) | [Standards Reference](https://qrcodefyi.com/standard/) | [Component Guide](https://qrcodefyi.com/component/) | [Encoding Modes](https://qrcodefyi.com/encoding/)
+> **Explore QR codes at [qrcodefyi.com](https://qrcodefyi.com)** -- [Type Explorer](https://qrcodefyi.com/type/) | [Standards Reference](https://qrcodefyi.com/standard/) | | [Encoding Modes](https://qrcodefyi.com/encoding/)
 
 ## Install
 
@@ -90,7 +90,7 @@ Mixed-mode encoding allows a single QR code to switch between modes within the d
 
 Every QR code contains mandatory structural components: finder patterns (three large squares at corners for orientation detection), timing patterns (alternating black/white modules for coordinate mapping), alignment patterns (smaller squares for distortion correction in Version 2+), format information (error correction level and mask pattern), and version information (encoded in Version 7+ codes). The data area fills the remaining modules using one of 8 mask patterns to ensure optimal readability.
 
-Learn more: [Component Guide](https://qrcodefyi.com/component/) | [Version Explorer](https://qrcodefyi.com/version/)
+Learn more: | [Version Explorer](https://qrcodefyi.com/version/)
 
 ## API Endpoints
 
