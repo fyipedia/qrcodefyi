@@ -1,6 +1,6 @@
 [project]
 name = "qrcodefyi"
-version = "0.1.0"
+version = "0.1.1"
 description = "QR code encyclopedia API client — look up QR types, versions 1-40, encoding modes, error correction levels, standards, and specifications from QRCodeFYI."
 readme = "README.md"
 license = "MIT"
@@ -42,6 +42,7 @@ all = ["qrcodefyi[api,cli,mcp]"]
 
 [project.scripts]
 qrcodefyi = "qrcodefyi.cli:app"
+qrcodefyi-mcp = "qrcodefyi.mcp_server:main"
 
 [project.entry-points."mcp.servers"]
 qrcodefyi = "qrcodefyi.mcp_server:mcp"

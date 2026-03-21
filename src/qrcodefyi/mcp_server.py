@@ -1,143 +1,88 @@
-"""MCP server for qrcodefyi — QR code reference tools for AI assistants.
+"""MCP server for qrcodefyi — AI assistant tools for qrcodefyi.com.
 
-Requires the ``mcp`` extra: ``pip install qrcodefyi[mcp]``
-
-Run as a standalone server::
-
-    python -m qrcodefyi.mcp_server
-
-Or configure in ``claude_desktop_config.json``::
-
-    {
-        "mcpServers": {
-            "qrcodefyi": {
-                "command": "python",
-                "args": ["-m", "qrcodefyi.mcp_server"]
-            }
-        }
-    }
+Run: uvx --from "qrcodefyi[mcp]" python -m qrcodefyi.mcp_server
 """
-
 from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("qrcodefyi")
+mcp = FastMCP("QRCodeFYI")
 
 
 @mcp.tool()
-def qrcode_search(query: str) -> str:
-    """Search for QR code types, standards, and terminology on QRCodeFYI.
-
-    Search across QR code formats (Model 1, Model 2, Micro QR, rMQR),
-    standards (ISO/IEC 18004), encoding modes, components, and glossary terms.
+def list_encoding_modes(limit: int = 20, offset: int = 0) -> str:
+    """List encoding_modes from qrcodefyi.com.
 
     Args:
-        query: Search term (e.g. "micro qr", "kanji", "error correction", "finder pattern").
+        limit: Maximum number of results. Default 20.
+        offset: Number of results to skip. Default 0.
     """
     from qrcodefyi.api import QRCodeFYI
 
     with QRCodeFYI() as api:
-        results = api.search(query)
-
-    items = results.get("results", [])
-    if not items:
-        return f"No results found for '{query}'."
-
-    lines = [
-        f"## QR Code Search: {query}",
-        "",
-        f"Found {len(items)} result(s):",
-        "",
-        "| Type | Name | Slug |",
-        "|------|------|------|",
-    ]
-
-    for item in items:
-        row = f"| {item.get('type', '')} | {item.get('name', '')} | {item.get('slug', '')} |"
-        lines.append(row)
-
-    return "\n".join(lines)
+        data = api.list_encoding_modes(limit=limit, offset=offset)
+        results = data.get("results", data) if isinstance(data, dict) else data
+        if not results:
+            return "No encoding_modes found."
+        items = results[:limit] if isinstance(results, list) else []
+        return "\n".join(f"- {item.get('name', item.get('slug', '?'))}" for item in items)
 
 
 @mcp.tool()
-def qrcode_lookup(slug: str) -> str:
-    """Look up a specific QR code type by slug.
-
-    Returns full specifications including versions, encoding modes,
-    error correction levels, module sizes, and related standards.
+def get_encoding_mode(slug: str) -> str:
+    """Get detailed information about a specific encoding_mode.
 
     Args:
-        slug: QR type slug (e.g. "model-2", "micro-qr", "rmqr", "iqr-code").
+        slug: URL slug identifier for the encoding_mode.
     """
     from qrcodefyi.api import QRCodeFYI
 
     with QRCodeFYI() as api:
-        data = api.qr_type(slug)
-
-    lines = [
-        f"## {data.get('name', slug)}",
-        "",
-        data.get("description", ""),
-        "",
-        f"- **Year Introduced**: {data.get('year_introduced', 'N/A')}",
-        f"- **Versions**: {data.get('versions', 'N/A')}",
-        f"- **Max Data Capacity**: {data.get('max_data_capacity', 'N/A')}",
-        f"- **Error Correction**: {data.get('error_correction_levels', 'N/A')}",
-        f"- **Encoding Modes**: {data.get('encoding_modes', 'N/A')}",
-        f"- **Module Range**: {data.get('module_range', 'N/A')}",
-    ]
-
-    standards = data.get("standards", [])
-    if standards:
-        lines.append("")
-        lines.append("### Standards")
-        for st in standards:
-            lines.append(f"- {st.get('name', '')} ({st.get('issuing_body', '')})")
-
-    return "\n".join(lines)
+        data = api.get_encoding_mode(slug)
+        return str(data)
 
 
 @mcp.tool()
-def qrcode_compare(slug_a: str, slug_b: str) -> str:
-    """Compare two QR code types side by side.
+def list_standards(limit: int = 20, offset: int = 0) -> str:
+    """List standards from qrcodefyi.com.
 
     Args:
-        slug_a: First QR type slug (e.g. "model-1").
-        slug_b: Second QR type slug (e.g. "model-2").
+        limit: Maximum number of results. Default 20.
+        offset: Number of results to skip. Default 0.
     """
     from qrcodefyi.api import QRCodeFYI
 
     with QRCodeFYI() as api:
-        data = api.compare(slug_a, slug_b)
+        data = api.list_standards(limit=limit, offset=offset)
+        results = data.get("results", data) if isinstance(data, dict) else data
+        if not results:
+            return "No standards found."
+        items = results[:limit] if isinstance(results, list) else []
+        return "\n".join(f"- {item.get('name', item.get('slug', '?'))}" for item in items)
 
-    a = data.get("a", {})
-    b = data.get("b", {})
 
-    lines = [
-        f"## {a.get('name', slug_a)} vs {b.get('name', slug_b)}",
-        "",
-        "| Property | " + a.get("name", slug_a) + " | " + b.get("name", slug_b) + " |",
-        "|----------|"
-        + "-" * len(a.get("name", slug_a))
-        + "--|"
-        + "-" * len(b.get("name", slug_b))
-        + "--|",
-    ]
+@mcp.tool()
+def search_qrcode(query: str) -> str:
+    """Search qrcodefyi.com for QR code encoding modes, standards, and components.
 
-    fields = [
-        ("Year", "year_introduced"),
-        ("Versions", "versions"),
-        ("Max Capacity", "max_data_capacity"),
-        ("Error Correction", "error_correction_levels"),
-        ("Encoding Modes", "encoding_modes"),
-        ("Module Range", "module_range"),
-    ]
-    for label, key in fields:
-        lines.append(f"| {label} | {a.get(key, '-')} | {b.get(key, '-')} |")
+    Args:
+        query: Search query string.
+    """
+    from qrcodefyi.api import QRCodeFYI
 
-    return "\n".join(lines)
+    with QRCodeFYI() as api:
+        data = api.search(query)
+        results = data.get("results", data) if isinstance(data, dict) else data
+        if not results:
+            return f"No results found for \"{query}\"."
+        items = results[:10] if isinstance(results, list) else []
+        return "\n".join(f"- {item.get('name', item.get('slug', '?'))}" for item in items)
+
+
+def main() -> None:
+    """Run the MCP server."""
+    mcp.run()
 
 
 if __name__ == "__main__":
-    mcp.run()
+    main()
