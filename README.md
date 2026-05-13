@@ -290,6 +290,20 @@ Embed [QRCodeFYI](https://qrcodefyi.com) widgets on any website with [qrcodefyi-
 
 Zero dependencies · Shadow DOM · 4 themes (light/dark/sepia/auto) · [Widget docs](https://widget.qrcodefyi.com)
 
+<!-- WIDGET-OSS-MONITOR: cross-links START -->
+
+## Related Resources
+
+- **Widget Hub**: [widget.tagfyi.com](https://widget.tagfyi.com/) — interactive widgets for the Tag FYI ecosystem
+- **Main Site**: [tagfyi.com](https://tagfyi.com/) — full reference
+- **Family Network**: see [/developers/](https://tagfyi.com/developers/) for sister packages
+
+## FYIPedia Ecosystem
+
+This package is part of the [FYIPedia](https://fyipedia.com) developer tools ecosystem. Sister packages in this family: see widget hub link above.
+
+<!-- WIDGET-OSS-MONITOR: cross-links END -->
+
 ## License
 
 MIT
